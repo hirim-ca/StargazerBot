@@ -1,0 +1,60 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>69041381-13a5-4a5d-9fc0-f723dce97d7d</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>run.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>StargazerBot</Name>
+    <RootNamespace>StargazerBot</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="db.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ext\backdoor.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ext\stargazer.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="run.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="stargazerBot.py" />
+    <Compile Include="utils.py">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ext\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="backdoorcode.txt" />
+    <Content Include="config.ini">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="key.ini" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
