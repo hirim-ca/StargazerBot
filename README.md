@@ -7,7 +7,7 @@ Current version: 0.1
 
 ## List of Commands
 
-### Modlue *Stargazer*
+### Module *Stargazer*
 
  - `starChannel` - (Admin only) Show the current starboard channel.
  - `starChannel [#channel]` - (Admin only) Set the starboard channel to `[#channel]`.
@@ -18,7 +18,7 @@ Current version: 0.1
 
 ---
 
-### Modlue *Backdoor*
+### Module *Backdoor*
 
  - `getMessageInChannel [#channel] [limit] [output_filename]`: (Dev only) Export `[limit]` number of messages in the specified channel to output. Setting limit=-1 will export all messages.
  - `dbStatus`: (Dev only) Check database status.
