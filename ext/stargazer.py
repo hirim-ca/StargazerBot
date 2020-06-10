@@ -389,7 +389,10 @@ class Stargazer(commands.Cog):
         if match:
             target_id = int(match.group(1))
         else:
-            return
+            match = re.search(r'<@(.*)>', args[0])
+            if not match:
+                return
+            target_id = int(match.group(1))
 
         # get quote
         rand_quote = self.bot.db.get(
@@ -425,8 +428,11 @@ class Stargazer(commands.Cog):
         if match:
             target_id = int(match.group(1))
         else:
-            return
-
+            match = re.search(r'<@(.*)>', args[0])
+            if not match:
+                return
+            target_id = int(match.group(1))
+            
         # get quotes from user
         user_quotes = self.bot.db.get(
             self.datatable_name, 
