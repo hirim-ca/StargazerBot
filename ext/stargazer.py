@@ -138,7 +138,7 @@ class Stargazer(commands.Cog):
         elif not quote_indb.empty and deletion and reaction.count < self.min_react:
             # delete embed and remove record
 
-            embed = star_channel.fetch_message(int(quote_indb.iloc[0]['embed_id']))
+            embed = await self.star_channel.fetch_message(int(quote_indb.iloc[0]['embed_id']))
             await embed.delete()
             self.bot.db.delete(self.datatable_name, constraints=f"WHERE message_id='{ msg.id }'")
 
@@ -188,16 +188,16 @@ class Stargazer(commands.Cog):
             title = "List of Commands",
             description = f"""
                 __Module  ***Stargazer***:__\n
-                    **{ pf }starChannel** - (Admin only) Show the current starboard channel\n
-                    **{ pf }starChannel [#channel]** - (Admin only) Set the starboard channel to [#channel]\n
-                    **{ pf }rankQuote** - Displays top quotes sorted by scores.\n
-                    **{ pf }rankAuthor** - Displays top authors sorted by their total scores.\n
-                    **{ pf }feature [@user]** - Sends a random quote from user.\n
-                    **{ pf }describe [@user]** - Checks the user's quote status.\n
+                **{ pf }starChannel** - (Admin only) Show the current starboard channel
+                **{ pf }starChannel [#channel]** - (Admin only) Set the starboard channel to [#channel]
+                **{ pf }rankQuote** - Displays top quotes sorted by scores.
+                **{ pf }rankAuthor** - Displays top authors sorted by their total scores.
+                **{ pf }feature [@user]** - Sends a random quote from user.
+                **{ pf }describe [@user]** - Checks the user's quote status.\n
                 __Module  ***Backdoor***:__\n
-                    **{ pf }getMessageInChannel [#channel] [limit] [output_filename]**\n(Dev only) Export [limit] number of messages in the specified channel to output. Setting limit=-1 will export all messages.\n
-                    **{ pf }dbStatus** - (Dev only) Check database status.\n
-                    **{ pf }clearChannel [#channel] [limit]**\n(Admin only) Purge [limit] number of messages from channel specified. Setting limit=-1 will purge all messages.\n\n
+                **{ pf }getMessageInChannel [#channel] [limit] [output_filename]**:\n(Dev only) Export [limit] number of messages in the specified channel to output. Setting limit=-1 will export all messages.
+                **{ pf }dbStatus** - (Dev only) Check database status.
+                **{ pf }clearChannel [#channel] [limit]**:\n(Admin only) Purge [limit] number of messages from channel specified. Setting limit=-1 will purge all messages.
             """,
             color = discord.Colour.blurple()
         )
@@ -207,22 +207,22 @@ class Stargazer(commands.Cog):
             name = "**---------------- 指令集 ----------------**",
             value = f"""
                 __***Stargazer*** 模組:__\n
-                    **{ pf }starChannel** - (管理員專用) 顯示目前的名言頻道。\n
-                    **{ pf }starChannel [#新頻道]** - (管理員專用) 設定新的名言頻道。\n
-                    **{ pf }rankQuote** - 顯示名言排行榜。\n
-                    **{ pf }rankAuthor** - 顯示用戶名言分數排行榜。\n
-                    **{ pf }feature [@用戶]** - 隨機挑選一條用戶的名言。\n
-                    **{ pf }describe [@用戶]** - 查看用戶的名言信息。\n
+                **{ pf }starChannel** - (管理員專用) 顯示目前的名言頻道。
+                **{ pf }starChannel [#新頻道]** - (管理員專用) 設定新的名言頻道。
+                **{ pf }rankQuote** - 顯示名言排行榜。
+                **{ pf }rankAuthor** - 顯示用戶名言分數排行榜。
+                **{ pf }feature [@用戶]** - 隨機挑選一條用戶的名言。
+                **{ pf }describe [@用戶]** - 查看用戶的名言信息。\n
                 __***Backdoor*** 模組:__\n
-                    **{ pf }getMessageInChannel [#頻道] [上限] [文件名]**\n(開發人員專用) 將頻道內 [上限] 數量的訊息輸出到 [文件名]。將上限數設為-1則輸出該頻道全部的訊息。\n
-                    **{ pf }dbStatus** - (開發人員專用) 查看資料庫状态。\n
-                    **{ pf }clearChannel [#頻道] [上限]**\n(管理員專用) 將頻道內近期 [上限] 數量的訊息刪除。將上限數設為-1則刪除該頻道全部的訊息。\n
+                **{ pf }getMessageInChannel [#頻道] [上限] [文件名]**:\n(開發人員專用) 將頻道內 [上限] 數量的訊息輸出到 [文件名]。將上限數設為-1則輸出該頻道全部的訊息。
+                **{ pf }dbStatus** - (開發人員專用) 查看資料庫状态。
+                **{ pf }clearChannel [#頻道] [上限]**:\n(管理員專用) 將頻道內近期 [上限] 數量的訊息刪除。將上限數設為-1則刪除該頻道全部的訊息。
                 
             """
         )
             
 
-        embed.set_thumbnail(url=self.bot.user.avatar_url)
+        embed.set_thumbnail(url=self.bot.user.avatar_url_as(static_format="png"))
         embed.set_footer(text="StargazerBot v0.1")
 
         await ctx.send(embed=embed)
@@ -292,7 +292,7 @@ class Stargazer(commands.Cog):
             color = self.highlight_colors[-1]
         )
 
-        embed.set_author(name=top1["name"], icon_url=top1["user"].avatar_url)
+        embed.set_author(name=top1["name"], icon_url=top1["user"].avatar_url_as(static_format="png"))
         
         embed.add_field(name="Rank", value="#1", inline=True)
         embed.add_field(name="Score", value=f"{ top1['score'] }", inline=True)
@@ -349,7 +349,7 @@ class Stargazer(commands.Cog):
             color = self.highlight_colors[-1]
         )
 
-        embed.set_author(name=top1["name"], icon_url=top1["user"].avatar_url)
+        embed.set_author(name=top1["name"], icon_url=top1["user"].avatar_url_as(static_format="png"))
 
         # others
 
@@ -464,8 +464,8 @@ class Stargazer(commands.Cog):
             embed.add_field(name="Total Points Gained", value=str(sum), inline=True)
             embed.add_field(name="Average Points per Quote", value=str(mean), inline=True)
 
-            embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
-            embed.set_thumbnail(url=msg.author.avatar_url)
+            embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url_as(static_format="png"))
+            embed.set_thumbnail(url=msg.author.avatar_url_as(static_format="png"))
 
 
             embed.timestamp = datetime.utcnow()

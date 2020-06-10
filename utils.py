@@ -16,7 +16,7 @@ def createEmbed(msg, **kwags):
             color = kwags.get("color", discord.Colour.blue())
         )
 
-    embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url)
+    embed.set_author(name=msg.author.display_name, icon_url=msg.author.avatar_url_as(static_format="png"))
     embed.timestamp = msg.created_at
     if len(msg.attachments) > 0:
         embed.set_image(url=msg.attachments[0].url)
