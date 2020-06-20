@@ -3,6 +3,7 @@ from configparser import ConfigParser
 from math import floor
 from datetime import datetime
 import pandas as pd
+import numpy as np
 
 import discord
 from discord.ext import commands
@@ -18,10 +19,12 @@ class Stargazer(commands.Cog):
     """
 
     def __init__(self, bot):
+ 
+        self.bot = bot
 
         self.config = ConfigParser()
         self.config.read("config.ini")
-        self.bot = bot
+
         self.star_reacts = self.config.get("STARGAZER", "STAR_REACT").split(' ')
         self.star_react_emoji = self.config.get("STARGAZER", "STAR_REACT_EMOJI")
         self.min_react = int(self.config.get("STARGAZER", "MIN_REACT"))
@@ -29,6 +32,7 @@ class Stargazer(commands.Cog):
         self.datatable_name = self.config.get("STARGAZER", "DATATABLE_NAME")
         self.highlight_colors = self.config.get("STARGAZER", "HIGHLIGHT_COLOR").split(' ')
         self.rank_limit = int(self.config.get("STARGAZER", "RANK_LIMIT"))
+
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -182,56 +186,13 @@ class Stargazer(commands.Cog):
     async def help(self, ctx):
         """ The help command. Lists all commands avaliable. """
 
-        pf = self.bot.command_prefix
-
-        embed = discord.Embed(
-            title = "List of Commands",
-            description = f"""
-                __Module  ***Stargazer***:__\n
-                **{ pf }starChannel** - (Admin only) Show the current starboard channel
-                **{ pf }starChannel [#channel]** - (Admin only) Set the starboard channel to [#channel]
-                **{ pf }rankQuote** - Displays top quotes sorted by scores.
-                **{ pf }rankAuthor** - Displays top authors sorted by their total scores.
-                **{ pf }feature [@user]** - Sends a random quote from user.
-                **{ pf }describe [@user]** - Checks the user's quote status.\n
-                __Module  ***Backdoor***:__\n
-                **{ pf }getMessageInChannel [#channel] [limit] [output_filename]**:\n(Dev only) Export [limit] number of messages in the specified channel to output. Setting limit=-1 will export all messages.
-                **{ pf }dbStatus** - (Dev only) Check database status.
-                **{ pf }clearChannel [#channel] [limit]**:\n(Admin only) Purge [limit] number of messages from channel specified. Setting limit=-1 will purge all messages.
-            """,
-            color = discord.Colour.blurple()
-        )
-
-        # list of commands in other languages
-        embed.add_field(
-            name = "**---------------- 指令集 ----------------**",
-            value = f"""
-                __***Stargazer*** 模組:__\n
-                **{ pf }starChannel** - (管理員專用) 顯示目前的名言頻道。
-                **{ pf }starChannel [#新頻道]** - (管理員專用) 設定新的名言頻道。
-                **{ pf }rankQuote** - 顯示名言排行榜。
-                **{ pf }rankAuthor** - 顯示用戶名言分數排行榜。
-                **{ pf }feature [@用戶]** - 隨機挑選一條用戶的名言。
-                **{ pf }describe [@用戶]** - 查看用戶的名言信息。\n
-                __***Backdoor*** 模組:__\n
-                **{ pf }getMessageInChannel [#頻道] [上限] [文件名]**:\n(開發人員專用) 將頻道內 [上限] 數量的訊息輸出到 [文件名]。將上限數設為-1則輸出該頻道全部的訊息。
-                **{ pf }dbStatus** - (開發人員專用) 查看資料庫状态。
-                **{ pf }clearChannel [#頻道] [上限]**:\n(管理員專用) 將頻道內近期 [上限] 數量的訊息刪除。將上限數設為-1則刪除該頻道全部的訊息。
-                
-            """
-        )
-            
-
-        embed.set_thumbnail(url=self.bot.user.avatar_url_as(static_format="png"))
-        embed.set_footer(text="StargazerBot v0.1")
-
-        await ctx.send(embed=embed)
+        await ctx.send("See https://github.com/hirim-ca/StargazerBot for the list of commands.")
 
     @commands.command()
-    async def starChannel(self, ctx, *args):
+    async def stChn(self, ctx, *args):
         """ 
         Show the current starboard channel or set a new starboard channel.
-        Usage: [prefix]starChannel [#channel]
+        Usage: [prefix]stChn [#channel]
         """
 
         if not ctx.author.guild_permissions.administrator:
@@ -253,7 +214,7 @@ class Stargazer(commands.Cog):
             await ctx.send(f"Starboard channel is currently set to <#{ self.star_channel.id }>.")
 
     @commands.command()
-    async def rankQuote(self, ctx):
+    async def rkQt(self, ctx):
         """ Displays top RANK_LIMIT number of quotes sorted by scores. """
         
         # prepare data
@@ -261,10 +222,11 @@ class Stargazer(commands.Cog):
         tops = self.bot.db.get(
             self.datatable_name, 
             columns = ["message_id", "channel_id", "author_id", "score"],
-            constraints = f"ORDER BY score DESC, created_at DESC LIMIT { self.rank_limit+10 } "
-        ) # limit + 10 in case of deleted messages
+            constraints = f"ORDER BY score DESC, created_at DESC LIMIT { self.rank_limit+50 } "
+        ) # limit + 50 in case of deleted messages(312 fix)
       
         tops["user"] = tops["author_id"].map(lambda x: self.bot.get_user(int(x)))
+        tops = tops.dropna()
         tops["name"] = tops["user"].map(lambda row: row.display_name)
         tops["channel"] = tops["channel_id"].map(lambda x: self.bot.get_channel(int(x)))
 
@@ -272,9 +234,12 @@ class Stargazer(commands.Cog):
         messages = []
         ids = tops["message_id"].tolist()
         for i, row in tops["channel"].iteritems():
-            msg = await row.fetch_message(ids[i])
-            messages.append(msg)
-
+            try:
+                msg = await row.fetch_message(ids[i])
+                messages.append(msg)
+            except:
+                messages.append(np.NaN)
+            
         tops["message"] = messages
         tops = tops.dropna() # erase deleted messages
         tops["content"] = tops["message"].map(lambda row: row.content)
@@ -315,14 +280,14 @@ class Stargazer(commands.Cog):
         others.apply(lambda row: appendToEmbed(row), axis=1)
 
         embed.timestamp = datetime.utcnow()
-        embed.set_footer(text="Output created at")
+        embed.set_footer(text=self.bot.name, icon_url=self.bot.user.avatar_url_as(static_format='png'))
 
         # print
 
         await ctx.send(f"<@{ ctx.author.id }> Here you go!", embed=embed)
 
     @commands.command()
-    async def rankAuthor(self, ctx):
+    async def rkAt(self, ctx):
         """ Displays top RANK_LIMIT number of users sorted by their total scores. """
 
         # prepare data
@@ -330,14 +295,15 @@ class Stargazer(commands.Cog):
         tops = self.bot.db.get(
             self.datatable_name, 
             columns = ["author_id", "SUM(score)"],
-            constraints = f"GROUP BY author_id ORDER BY SUM(score) DESC LIMIT { self.rank_limit } "
+            constraints = f"GROUP BY author_id ORDER BY SUM(score) DESC LIMIT { self.rank_limit+10 } "
         )
-      
+
         tops["user"] = tops["author_id"].map(lambda x: self.bot.get_user(int(x)))
+        tops = tops.dropna()
         tops["name"] = tops["user"].map(lambda row: row.display_name)
 
         top1 = tops.iloc[0]
-        others = tops.iloc[1:]
+        others = tops.iloc[1:self.rank_limit-1]
 
         # format output
 
@@ -369,43 +335,52 @@ class Stargazer(commands.Cog):
         others.apply(lambda row: appendToEmbed(row), axis=1)
 
         embed.timestamp = datetime.utcnow()
-        embed.set_footer(text="Output created at")
+        embed.set_footer(text=self.bot.name, icon_url=self.bot.user.avatar_url_as(static_format='png'))
 
         # print
 
         await ctx.send(f"<@{ ctx.author.id }> Here you go!", embed=embed)
 
     @commands.command()
-    async def feature(self, ctx, *args):
+    async def rand(self, ctx, *args):
         """ 
-        Sends a random quote from user. 
-        Usage: feature [@user]
+        Sends a random quote (from user). 
+        Usage: rand or rand [@user]
         """
 
-        # check for valid syntax
-        match = re.search(r'<@!(.*)>', args[0])
-        target_id = None
+        if len(args):
 
-        if match:
-            target_id = int(match.group(1))
+            # check for valid user
+            match = re.search(r'<@!(.*)>', args[0])
+            target_id = None
+
+            if match:
+                target_id = int(match.group(1))
+            else:
+                match = re.search(r'<@(.*)>', args[0])
+                if not match:
+                    await ctx.send("Invalid user.")
+                    return
+                target_id = int(match.group(1))
+
+            # get quote
+            rand_quote = self.bot.db.get(
+                self.datatable_name, 
+                columns = ["message_id", "channel_id", "author_id"],
+                constraints = f"WHERE author_id = '{ target_id }' ORDER BY RANDOM() LIMIT 1"
+            )
+
         else:
-            match = re.search(r'<@(.*)>', args[0])
-            if not match:
-                return
-            target_id = int(match.group(1))
-
-        # get quote
-        rand_quote = self.bot.db.get(
-            self.datatable_name, 
-            columns = ["message_id", "channel_id", "author_id"],
-            constraints = f"WHERE author_id = '{ target_id }' ORDER BY RANDOM() LIMIT 1"
-        )
+            rand_quote = self.bot.db.get(
+                self.datatable_name, 
+                columns = ["message_id", "channel_id", "author_id"],
+                constraints = f"ORDER BY RANDOM() LIMIT 1"
+            )
 
         if not rand_quote.empty:
             # if valid quote
 
             rand_quote = rand_quote.iloc[0]
-
             channel = self.bot.get_channel(int(rand_quote['channel_id']))
             msg = await channel.fetch_message(int(rand_quote['message_id']))
 
@@ -415,10 +390,10 @@ class Stargazer(commands.Cog):
             await ctx.send("User doesn't have a highlighted quote.")
 
     @commands.command()
-    async def describe(self, ctx, *args):
+    async def desc(self, ctx, *args):
         """ 
         Checks the user's quote status.
-        Usage: describe [@user]
+        Usage: desc [@user]
         """
 
         # check for valid syntax
@@ -469,7 +444,7 @@ class Stargazer(commands.Cog):
 
 
             embed.timestamp = datetime.utcnow()
-            embed.set_footer(text="Output created at")
+            embed.set_footer(text=self.bot.name, icon_url=self.bot.user.avatar_url_as(static_format='png'))
 
             await ctx.send(f"<@{ ctx.author.id }> Here you go!", embed=embed)
 

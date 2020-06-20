@@ -3,6 +3,7 @@ from configparser import ConfigParser
 
 import asyncio
 import discord
+import utils
 from discord.ext import commands
 
 
@@ -13,18 +14,26 @@ class StargazerBot(commands.Bot):
         print("Initializing StargazerBot")
 
         super().__init__(*args, **kwargs)
+        self.name = kwargs.get("name")
         self.db = kwargs.get("db")
         self.output_path = kwargs.get("output_path")
-        self.remove_command('help')
+        self.remove_command("help")
 
         print("Loading extentions...")
-        for ext in glob.glob(kwargs.get("ext_path", ".") + "*.py"):
+        for ext in glob.glob(kwargs.get("ext_path", "") + "*.py"):
             print("Loading " + ext)
-            self.load_extension(ext.replace('\\', '.')[:-3])
+
+            try:
+                # linux regrex
+                self.load_extension(ext.replace('/', '.')[:-3])
+            except:
+                # windows regrex
+                self.load_extension(ext.replace('\\', '.')[:-3])
+
             print(ext + "loaded")
 
     def run(self, *args):
-        """ Call this function if you are ready to start the bot. """
+        """ Call this function to start the bot. """
 
         self.loop.run_until_complete(self.start(*args))
 

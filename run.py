@@ -7,37 +7,28 @@ from db import PostgreSQL
 def run():
     config = ConfigParser()
     config.read("config.ini")
+    keys = ConfigParser()
+    keys.read("keys.ini")
 
-    if (int(config.get("BOT", "LOCAL"))):
-        keys = ConfigParser()
-        keys.read("key.ini")
-        db_user = keys.get("KEYS", "DB_USER")
-        db_name = keys.get("KEYS", "DB_NAME")
-        db_password = keys.get("KEYS", "DB_PASSWORD")
-        token = keys.get("KEYS", "TOKEN")
-    else:
-        db_user = os.getenv("DB_USER")
-        db_name = os.getenv("DB_NAME")
-        db_password = os.getenv("DB_PASSWORD")
-        token = os.getenv("TOKEN")
 
     db = PostgreSQL(
-        user = db_user,
-        password = db_password,
-        host = config.get("DB", "HOST"),
-        port = config.get("DB", "PORT"),
-        database = db_name
+        user = keys.get("DB", "DB_USER"),
+        password = keys.get("DB", "DB_PASSWORD"),
+        host = keys.get("DB", "HOST"),
+        port = keys.get("DB", "PORT"),
+        database = keys.get("DB", "DB_NAME")
     )
 
     stargazerBot = StargazerBot(
         db = db, 
-        owner_id = int(config.get("BOT", "OWNER_ID")),
+        name = config.get("BOT", "NAME"),
+        owner_id = int(keys.get("BOT", "OWNER_ID")),
         ext_path = config.get("BOT", "EXTENTION_PATH"),
         output_path = config.get("BOT", "OUTPUT_PATH"),
         command_prefix=config.get("BOT", "COMMAND_PREFIX")
     )
 
-    stargazerBot.run(token)
+    stargazerBot.run(keys.get("BOT", "TOKEN"))
 
 if __name__ == "__main__":
     run()

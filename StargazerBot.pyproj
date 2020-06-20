@@ -27,6 +27,9 @@
     <Compile Include="ext\backdoor.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ext\serverData.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ext\stargazer.py">
       <SubType>Code</SubType>
     </Compile>
@@ -42,11 +45,11 @@
     <Folder Include="ext\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="backdoorcode.txt" />
     <Content Include="config.ini">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="key.ini" />
+    <Content Include="keys.ini" />
+    <Content Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
