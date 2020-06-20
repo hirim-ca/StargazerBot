@@ -34,7 +34,7 @@ Current version: 0.1
  - `stChn [#channel]` - (管理員專用) 設定新的名言頻道為`[#channel]`。
  - `rkQt` - 顯示名言排行榜。
  - `rkAt` - 顯示用戶名言總分數排行榜。
- - `rand [@user]` - 隨機挑選一條名言。
+ - `rand` - 隨機挑選一條名言。
  - `rand [@user]` - 隨機挑選一條`[@user]`的名言。
  - `desc [@user]` - 查看用戶的名言信息。
 
