@@ -168,7 +168,7 @@ class ServerData(commands.Cog):
 
         users = access_admins['user_id'].map(lambda x: self.bot.get_user(int(x)))
 
-        if msg.cached_message and not msg.cached_message.author.bot and not len(users):
+        if msg.cached_message and not msg.cached_message.author.bot and len(users):
             for user in users:
                 await user.send(f"A message was deleted in **{ server.name }**:", embed=utils.createEmbed(msg.cached_message))
 

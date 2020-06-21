@@ -50,10 +50,14 @@ class StargazerBot(commands.Bot):
         print("Bot is ready.")
 
 
-    async def on_messeage(self, messeage):
+    async def on_message(self, message):
         """ The deafualt function called when a messeage is sent by user. """
 
-        if messeage.author.bot:
+        if message.author.bot:
             return
+
+        if ":kyarushocked:" in message.content:
+            # lol
+            await message.channel.send("<:kyarushocked:705832784475717773>")
 
         await self.process_commands(message)
